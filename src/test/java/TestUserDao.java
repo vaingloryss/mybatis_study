@@ -76,8 +76,9 @@ public class TestUserDao {
      */
     @Test
     public void test07(){
-        User user = new User(0,"李小白","女","17687677887","123123@qq.com");
+        User user = new User(0,"李太白","女","17687677887","123123@qq.com");
         Integer last_insert_id = userDao.addReturnIndex(user);
+        System.out.println(user.getId());
         System.out.println(last_insert_id);
     }
 }

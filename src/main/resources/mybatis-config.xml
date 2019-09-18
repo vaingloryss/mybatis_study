@@ -33,7 +33,15 @@
 	</environments>
 	<mappers>
 		<!--第一种方式，配置mapper文件-->
-		<!--<mapper resource="UserDaoMapper.xml"/>-->
-		<mapper resource="com/vainglory/mapper/IWorkerDao.xml"/>
+		<mapper resource="UserDaoMapper.xml"/>
+		<!--<mapper resource="com/vainglory/mapper/IWorkerDao.xml"/>-->
+
+        <!--第二种方式，配置Dao层接口，要求，Mapper文件和dao接口在同一个目录中，并且文件名相同-->
+        <!--不常用，了解-->
+        <!--<mapper resource="com/vainglory/mapper/IWorkerDao"/>-->
+
+        <!--第三种方式，配置整个Mapper包-->
+        <package name="com.vainglory.mapper"/>
+        
 	</mappers>
 </configuration>

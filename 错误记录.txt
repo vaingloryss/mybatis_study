@@ -1,0 +1,8 @@
+Error querying database.
+Cause: org.apache.ibatis.builder.IncompleteElementException:
+Could not find result map 'com.vainglory.domain.User' referenced from 'test.findAll'
+### Cause: org.apache.ibatis.builder.IncompleteElementException:
+Could not find result map 'com.vainglory.domain.User' referenced from 'test.findAll'
+
+在Mapper文件中一定存在一个mapper配置将resultType错误的写成了resultMap；
+只要有一个该错误，那么该文件中的其他mapper都会出现上述异常。

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="test">
+
+    <select id="findAll" resultType="com.vainglory.domain.User">
+        select * from tb_user
+    </select>
+    <select id="findById" resultType="com.vainglory.domain.User">
+        select * from tb_user where id=#{id}
+    </select>
+
+    <insert id="add" parameterType="com.vainglory.domain.User">
+        insert into tb_user(id,name,gender,phone,email) values(null,#{name},#{gender},#{phone},#{email})
+    </insert>
+
+    <!--插入之后返回新插入的数据的ID-->
+    <insert id="addReturnIndex" parameterType="com.vainglory.domain.User">
+        insert into tb_user(id,name,gender,phone,email) values(null,#{name},#{gender},#{phone},#{email})
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            select  LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterType="com.vainglory.domain.User">
+        update tb_user set name=#{name},gender=#{gender},phone=#{phone},email=#{email} where id=#{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from tb_user where id = #{id}
+    </delete>
+
+    <!--模糊查询-->
+    <select id="findByName" resultType="com.vainglory.domain.User">
+        select * from tb_user where name like #{name}
+    </select>
+</mapper>

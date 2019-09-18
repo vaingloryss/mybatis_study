@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="com.vainglory.mapper.IWorkerDao">
+
+    <select id="findAll" resultType="com.vainglory.domain.Worker">
+        select * from tb_worker
+    </select>
+    <select id="findById" resultType="com.vainglory.domain.Worker">
+        select * from tb_worker where id=#{id}
+    </select>
+
+    <insert id="add" parameterType="com.vainglory.domain.Worker">
+        insert into tb_worker(id,name,salary,address) values(null,#{name},#{salary},#{address})
+    </insert>
+
+    <update id="update" parameterType="com.vainglory.domain.User">
+        update tb_worker set name=#{name},salary=#{salary},address=#{address} where id=#{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from tb_worker where id = #{id}
+    </delete>
+</mapper>

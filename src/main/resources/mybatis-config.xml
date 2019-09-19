@@ -3,11 +3,8 @@
 		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-
 	<!--关联db.properties-->
-	<properties resource="db.properties">
-	</properties>
-
+	<properties resource="db.properties"/>
 
 	<typeAliases>
 		<!--为Worker起别名,麻烦-->
@@ -16,6 +13,12 @@
 		<!--为domain包中的所有类器别名，别名为类名，不区分大小写-->
 		<package name="com.vainglory.domain"/>
 	</typeAliases>
+
+	<!--类型转换器，需要放在设置别名的后面-->
+<!--	<typeHandlers>
+		<typeHandler handler="com.vainglory.typeHandler.AddressHandler" javaType="com.vainglory.domain.Address"/>
+	</typeHandlers>-->
+
 
 	<!-- 和spring整合后 environments配置将废除 -->
 	<environments default="development">

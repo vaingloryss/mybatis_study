@@ -5,9 +5,22 @@
 <!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
 <mapper namespace="com.vainglory.mapper.IWorkerDao">
 
+    <!--resultMap实现查询结果与POJO的映射,需要将数据库中的id字段改为w_id -->
+    <resultMap type="Worker" id="resultMapWorker">
+        <id column="w_id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="salary" property="salary"/>
+        <result column="address" property="address"/>
+    </resultMap>
+
     <select id="findAll" resultType="com.vainglory.domain.Worker">
         select * from tb_worker
     </select>
+
+    <!--resultMap-->
+    <!--<select id="findAll" resultMap="resultMapWorker">
+        select * from tb_worker
+    </select>-->
     <select id="findById" resultType="com.vainglory.domain.Worker">
         select * from tb_worker where id=#{id}
     </select>
@@ -23,4 +36,17 @@
     <delete id="deleteById">
         delete from tb_worker where id = #{id}
     </delete>
+
+    <!--
+    传递多个参数
+    select * from tb_worker where name like #{param1} and address=#{param2}
+    select * from tb_worker where name like #{arg0} and address=#{arg1}
+    -->
+    <select id="findByNameAndAddress" resultType="worker">
+        select * from tb_worker where name like #{name} and address=#{address}
+    </select>
+
+    <select id="getCount" resultType="long">
+        select count(*) from tb_worker
+    </select>
 </mapper>

@@ -9,6 +9,7 @@ Mybatis重要API
 
 Mapper中#占位符，相当于？，实现prepareStatement，防止sql注入攻击
 还可以使用$，相当于字符串拼接，参数名只能是${value},会有sql注入攻击漏洞
+使用#用于传递数据，使用$用于拼接sql语句，例如表中的字段名
 
 二、Mybatis的三种开发方式
 
@@ -20,20 +21,49 @@ Mapper中#占位符，相当于？，实现prepareStatement，防止sql注入攻
 
 
 三：输入输出参数
+
 parameterType()：
+参数类型，
+
 resultType()：
+resultType可以指定将查询结果映射为pojo，但需要pojo的属性名和sql查询的列名一致方可映射成功。
+
 resultMap()：
-类型转换器
+起别名，select id as user_id from tb_user;（最简单的方式）
+
+如果sql查询字段名和pojo的属性名不一致，可以通过resultMap将字段名和属性名作一个对应关系 ，
+resultMap实质上还需要将查询结果映射到pojo对象中。
+resultMap可以实现将查询结果映射为复杂类型的pojo，
+比如在查询结果映射对象中包括pojo和list实现一对一查询和一对多查询。
+
+例如：
+<resultMap type="Worker" id="resultMapWorker">
+    <id column="id" property="id"/>
+    <result column="name" property="name"/>
+    <result column="salary" property="salary"/>
+    <result column="address" property="address"/>
+</resultMap>
+此时SQL标签上的结果集类型应该使用resultMap
+
+传递多个参数查询:
+findByNameAndGender(String name,Integer gender);
+select * from tb_user where name like #{param1} and gender=#{param2}（常规）
+select * from tb_user where name like #{args1} and gender=#{args2}（不常用）
+封装一个queryVo类，传递多个参数
+
+类型转换器：
+public class AddressHandler extends TypeHandler{}
 
 四、动态SQL（重点）
 
 通过mybatis提供的各种标签方法实现动态拼接sql。
 （1）If标签：<if></if>
 字符串雷翔的数据需要做不等于空字符串的校验。
-if标签前需要添加一个 where 1=1 语句。
+if标签前需要添加一个 where 1=1 语句，防止语法错误。
 
 （2）Where标签：<where></where>
-where标签可以自动添加where语句，同时处理SQL语句第一个and、or关键字
+where标签可以自动添加where语句，同时处理(即去掉)SQL语句第一个and、or关键字，否则会出现以下情况：
+select * from tb_user and sex=""...(多一个and关键字，出现语法错误)
 
 （3）sql标签：<sql>
 Mybatis中可将重复的sql提取出来，使用时用include引用即可，最终达到sql重用的目的。

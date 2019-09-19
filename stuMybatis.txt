@@ -1,3 +1,5 @@
+一、
+
 Mybatis重要API
 - SqlSessionFactoryBuilder：该对象负责根据MyBatis配置文件SqlMapConfig.xml构建SqlSessionFactory实例
 - SqlSessionFactory：每一个MyBatis的应用程序都以一个SqlSessionFactory对象为核心。该对象负责创建SqlSession对象实例。
@@ -8,5 +10,48 @@ Mybatis重要API
 Mapper中#占位符，相当于？，实现prepareStatement，防止sql注入攻击
 还可以使用$，相当于字符串拼接，参数名只能是${value},会有sql注入攻击漏洞
 
-Mybatis的两种开发方式
-第一种：原始方法，第二种Mapper接口动态代理
+二、Mybatis的三种开发方式
+
+第一种：原始方法，编写Dao层的实现层，读取Mapper文件，执行sql语句
+
+第二种：Mapper接口动态代理，不编写实现类，使用SqlSession的getMapper方法，获取代理对象，执行SQL语句。
+
+第三种：注解式开发
+
+
+三：输入输出参数
+parameterType()：
+resultType()：
+resultMap()：
+类型转换器
+
+四、动态SQL（重点）
+
+通过mybatis提供的各种标签方法实现动态拼接sql。
+（1）If标签：<if></if>
+字符串雷翔的数据需要做不等于空字符串的校验。
+if标签前需要添加一个 where 1=1 语句。
+
+（2）Where标签：<where></where>
+where标签可以自动添加where语句，同时处理SQL语句第一个and、or关键字
+
+（3）sql标签：<sql>
+Mybatis中可将重复的sql提取出来，使用时用include引用即可，最终达到sql重用的目的。
+使用sql标签声明sql片段：
+<sql id="userFields">
+	id, username, birthday, sex, address
+</sql>
+
+（4）foreach标签<foreach></foreach>
+属性：
+foreach标签，进行遍历 -->
+collection：遍历的集合，这里是QueryVo的ids属性
+item：遍历的项目，可以随便写，，但是和后面的#{}里面要一致
+open：在前面添加的sql片段
+close：在结尾处添加的sql片段
+separator：指定遍历的元素之间使用的分隔符
+index：collection指定集合元素的索引
+
+五、多表关联查询
+
+六、代码生成器

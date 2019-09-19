@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="com.vainglory.mapper.IUserDynamicSqlDao">
+
+    <!--<select id="findByWhere" parameterType="user" resultType="user">
+	    SELECT id, name, gender, phone, email FROM `tb_user`
+	    WHERE gender = #{gender} AND name LIKE '%${name}%'
+    </select>-->
+
+    <!--if语句-->
+    <select id="findByWhere" parameterType="user" resultType="user">
+        <include refid="findFromUser"/>
+        WHERE 1=1
+
+        <if test="gender != null and gender != ''">
+            AND gender = #{gender}
+        </if>
+
+        <if test="name != null and name != ''">
+            AND name LIKE '%${name}%'
+        </if>
+    </select>
+
+    <!--where-->
+    <select id="findByWhereI" parameterType="user" resultType="user">
+        <include refid="findFromUser"/>
+        <where>
+            <if test="gender != null and gender != ''">
+                and gender=#{gender}
+            </if>
+            <if test="name != null and name != ''">
+                and name like '%${name}%'
+            </if>
+        </where>
+    </select>
+
+    <!--foreach-->
+    <select id="findByVo" resultType="user" parameterType="QueryVo">
+        <include refid="findFromUser"/>
+        <where>
+            <foreach collection="ids" item="id" open="id in (" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <!--声明SQL片段-->
+    <sql id="findFromUser" >
+        select id,name,gender,phone,email from tb_user
+    </sql>
+</mapper>

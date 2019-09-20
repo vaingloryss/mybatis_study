@@ -36,6 +36,7 @@ public class TestUserDynamicDao {
 
     /**
      * 测试findByQueryVo
+     * 参数为Vo对象
      */
     @Test
     public void test02(){
@@ -51,6 +52,41 @@ public class TestUserDynamicDao {
         SqlSession sqlSession = SqlSessionUtils.openSqlSession();
         IUserDynamicSqlDao userDynamicSqlDao = sqlSession.getMapper(IUserDynamicSqlDao.class);
         List<User> userList = userDynamicSqlDao.findByVo(queryVo);
+        sqlSession.close();
+        for (User user : userList) {
+            System.out.println(user.toString());
+        }
+    }
+
+    /**
+     * 参数为List集合
+     */
+    @Test
+    public void test03(){
+        List<Integer> ids = new ArrayList<>();
+        ids.add(8);
+        ids.add(11);
+        ids.add(10);
+
+        SqlSession sqlSession = SqlSessionUtils.openSqlSession();
+        IUserDynamicSqlDao userDynamicSqlDao = sqlSession.getMapper(IUserDynamicSqlDao.class);
+        List<User> userList = userDynamicSqlDao.findByList(ids);
+        sqlSession.close();
+        for (User user : userList) {
+            System.out.println(user.toString());
+        }
+    }
+
+    /**
+     * 参数为Array数组
+     */
+    @Test
+    public void test04(){
+        Integer [] ids = {8,10,11};
+        SqlSession sqlSession = SqlSessionUtils.openSqlSession();
+        IUserDynamicSqlDao userDynamicSqlDao = sqlSession.getMapper(IUserDynamicSqlDao.class);
+        List<User> userList = userDynamicSqlDao.findByArray(ids);
+        sqlSession.close();
         for (User user : userList) {
             System.out.println(user.toString());
         }

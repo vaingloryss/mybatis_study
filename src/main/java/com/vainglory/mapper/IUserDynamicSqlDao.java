@@ -13,4 +13,6 @@ public interface IUserDynamicSqlDao {
     List<User> findByWhere(User user);
     List<User> findByWhereI(User user);
     List<User> findByVo(QueryVo queryVo);
+    List<User> findByList(List<Integer> ids);
+    List<User> findByArray(Integer [] ids);
 }

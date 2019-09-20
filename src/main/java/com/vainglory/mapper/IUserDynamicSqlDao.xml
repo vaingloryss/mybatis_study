@@ -38,10 +38,31 @@
     </select>
 
     <!--foreach-->
+    <!--<include refid="findFromUser"/> where id in(#{ids[0]},#{ids[1]},#{ids[2]})-->
     <select id="findByVo" resultType="user" parameterType="QueryVo">
         <include refid="findFromUser"/>
         <where>
-            <foreach collection="ids" item="id" open="id in (" close=")" separator=",">
+            <foreach collection="ids" item="id" open="id in(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+
+    </select>
+
+    <!--参数为List ，也可以为参数声明别名-->
+    <select id="findByList" resultType="user" parameterType="QueryVo">
+        <include refid="findFromUser"/>
+        <where>
+            <foreach collection="list" item="id" open="id in(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+    <!--参数为Array-->
+    <select id="findByArray" resultType="user" parameterType="QueryVo">
+        <include refid="findFromUser"/>
+        <where>
+            <foreach collection="array" item="id" open="id in(" close=")" separator=",">
                 #{id}
             </foreach>
         </where>

@@ -29,6 +29,7 @@ resultType()：
 resultType可以指定将查询结果映射为pojo，但需要pojo的属性名和sql查询的列名一致方可映射成功。
 
 resultMap()：
+
 起别名，select id as user_id from tb_user;（最简单的方式）
 
 如果sql查询字段名和pojo的属性名不一致，可以通过resultMap将字段名和属性名作一个对应关系 ，
@@ -50,6 +51,11 @@ findByNameAndGender(String name,Integer gender);
 select * from tb_user where name like #{param1} and gender=#{param2}（常规）
 select * from tb_user where name like #{args1} and gender=#{args2}（不常用）
 封装一个queryVo类，传递多个参数
+
+resultMap实现一对多关联查询
+SELECT o.*,u.username,u.email,u.address FROM
+orders o LEFT JOIN user u
+ON o.user_id = u.id
 
 类型转换器：
 public class AddressHandler extends TypeHandler{}

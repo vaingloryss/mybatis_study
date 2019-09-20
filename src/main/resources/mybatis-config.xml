@@ -6,19 +6,24 @@
 	<!--关联db.properties-->
 	<properties resource="db.properties"/>
 
+	<!--数据库中字段下划线命名格式自动转Java驼峰命名法-->
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+
 	<typeAliases>
 		<!--为Worker起别名,麻烦-->
 		<!--<typeAlias type="com.vainglory.domain.Worker" alias="worker"/>-->
-
 		<!--为domain包中的所有类器别名，别名为类名，不区分大小写-->
 		<package name="com.vainglory.domain"/>
 	</typeAliases>
 
 	<!--类型转换器，需要放在设置别名的后面-->
-<!--	<typeHandlers>
+	<!--
+	<typeHandlers>
 		<typeHandler handler="com.vainglory.typeHandler.AddressHandler" javaType="com.vainglory.domain.Address"/>
-	</typeHandlers>-->
-
+	</typeHandlers>
+	-->
 
 	<!-- 和spring整合后 environments配置将废除 -->
 	<environments default="development">
@@ -42,7 +47,6 @@
         <!--第二种方式，配置Dao层接口，要求，Mapper文件和dao接口在同一个目录中，并且文件名相同-->
         <!--不常用，了解-->
         <!--<mapper resource="com/vainglory/mapper/IWorkerDao"/>-->
-
         <!--第三种方式，配置整个Mapper包-->
         <package name="com.vainglory.mapper"/>
         

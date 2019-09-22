@@ -156,6 +156,8 @@ PageInfo<User> pageInfo=new PageInfo<User>(users);
 startPage()相当于一个拦截器，用于增强查询语句（添加limit），所以Mapper文件中的sql语句最后不要写分号。
 每次只对startPage()方法后的第一个查询语句进行增强
 
+PageInfo的父类中有一个List集合，用于存放每页从数据库中查询出来的数据。
+
 
 
 

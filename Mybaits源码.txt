@@ -13,3 +13,101 @@ Executor
 数据库
 
 源码分析：
+1、MyBatis的SqlSession的四大对象：
+
+Executor、StatemenHandler、ParameterHandler、ResultHandler
+MyBatis的两种配置方式：
+    1、xml文件配置
+    2、Java方式配置（Configuration对象）
+
+xml文件配置方式最终也是解析xml文件并创建一个Configuration对象来实现的。
+
+SqlSession的执行过程
+
+2、SqlSession的创建过程：
+
+SqlSessionFactoryBuilder -》 SqlSessionFactory -》 SqlSession
+代码：
+InputStream is =  Resources.getResourcesAsStream("mybatisConfig.xml");
+SqlSessionFactory sqlSessionFactory =  SqlSessionFactoryBuilder.builder(is);
+SqlSession sqlSession = sqlSessionFactory.openSqlSession();
+
+3、SqlSessionFactoryBuilder、SqlSessionFactory和SqlSession的作用域
+
+SqlSessionFactoryBuilder：
+这个类可以被实例化、使用和丢弃，一旦创建了 SqlSessionFactory，就不再需要它了
+SqlSessionFactoryBuilder 实例的最佳范围是方法范围（也就是局部方法变量）。
+
+SqlSessionFactory：
+SqlSessionFactory 一旦被创建就应该在应用的运行期间一直存在，没有任何理由对它进行清除或重建。
+使用 SqlSessionFactory 的最佳实践是在应用运行期间不要重复创建多次，因此 　SqlSessionFactory 的最佳范围是应用范围。
+
+SqlSession：
+每个线程都应该有它自己的 SqlSession 实例。SqlSession 的实例不是线程安全的，因此是不能被共享的，所以它的最佳的范围是请求或方法范围。
+绝对不能将 SqlSession 实例的引用放在一个类的静态域，甚至一个类的实例变量也不行。
+也绝不能将 SqlSession 实例的引用放在任何类型的管理范围中，比如 Serlvet 架构中的 HttpSession。
+每次收到的 HTTP 请求，就可以打开一个 SqlSession，返回一个响应，就关闭它。
+这个关闭操作是很重要的，你应该把这个关闭操作放到 finally 块中以确保每次都能执行关闭。
+
+4、SqlSessionFactoryBuilder
+
+这个类用很多的构造方法，但主要分为三大类：
+    1、通过读取字符流（Reader）的方式构建SqlSessionFactory。
+    2、通过字节流（InputStream）的方式构建SqlSessionFacotry。
+    3、通过Configuration对象构建SqlSessionFactory。
+第1、2种方式是通过配置文件方式，第3种是通过Java代码方式。
+
+通过读取字符流方式构建SqlSessionFactory，首先XMLConfigBuilder工具类对配置文件进行解析成Configuration对象，
+再调用public SqlSessionFactory build(Configuration config)构建出SqlSessionFactory。
+
+XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
+return build(parser.parse());
+
+public SqlSessionFactory build(Configuration config) {
+    return new DefaultSqlSessionFactory(config);
+}
+
+返回的是DefaultSqlSessionFactory实例，而不是SqlSessionFactory。那是因为实际上SqlSessionFactory是一个接口，而DefaultSqlSessionFactory是它的实现类。
+
+5、SqlSessionFactory
+
+SqlSessionFactory中有很多openSqlSession()的重载方法，这些方法都是通过传入不同的参数构造SqlSession实例：
+有通过设置事务是否自动提交"autoCommit"：SqlSession openSession(boolean autoCommit);
+有设置执行器类型"ExecutorType"来构造的：SqlSession openSession(ExecutorType execType);
+还有事务的隔离级别的：SqlSession openSession(TransactionIsolationLevel level);
+还有三个参数组个使用的open方法等等。
+
+最后一个方法就告诉我们可以通过SqlSessionFactory来获取Configuration对象：Configuration getConfiguration();
+
+6、DefaultSqlSessionFactory
+
+DefaultSqlSessionFactory对SqlSessionFactory的具体实现，除了以上方法之外，还包括了：
+openSessionFromDataSource、openSessionFromConnection、getTransactionFactoryFromEnvironment、closeTransaction等方法。
+
+DefaultSqlSessionFactory中的第1行代码实际上就非常值得我们思考：final关键字。
+private final Configuration configuration;
+
+SqlSessionFactory接口的8个构造方法。DefaultSqlSessionFactory并没有直接实现这8个构造方法而是调用另外两个新的方法，
+这8个构造方法实际上分为两大类：一个是从数据源（DataSource）中获取SqlSession，一个是从Connection中获取SqlSession。
+
+如果没有传入ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit这三个参数，
+就代表使用我们Configuration对象中的配置（看来Executor、TransactionIsolationLevel、autoCommit是可以灵活配置的）。
+return new DefaultSqlSession(configuration, executor, autoCommit);
+该行创建出一个DefaultSqlSession实例，可以猜测SqlSession是一个接口而DefaultSqlSession是其实现类。
+对于SqlSession的创建过程，我们马上就要走到最后一步SqlSession的构建。而这也是最关键最重要最发杂的一步。
+
+7、SqlSession
+
+SqlSession可以说是整个MyBatis的重中之重，在SqlSession中涉及到四大对象：
+Executor、StatementHandler、ParameterHandler、ResultHandler，
+
+当我们构造出一个SqlSession实例过后，可以通过SqlSession构造出Mappper映射器，例如：
+SqlSession sqlSession = SqlSessionUtils.openSqlSession();
+IAddressDao addressDao = sqlSession.getMapper(IAddressDao.class);
+UserMapper是一个接口，那么我们可以肯定的是，它一定是用了Java的动态代理生成了一个代理类。
+SqlSessionManger同时实现了SqlSession 和 SqlSessionFactory接口，从名字上来看好像是管理SqlSession的，这里先不讨论。
+public class SqlSessionManager implements SqlSessionFactory, SqlSession
+
+回到DefaultSqlSession中来，在SqlSession接口中提供了很多方法，用于我们的增删改查，这在旧版的MyBatis或者iBatis中常常所使用的，
+我们现在大多直接使用xml配置文件以达到更加灵活的效果。
+所以我们将注意力放在getMapper方法上，这里就涉及到Java的动态代理.

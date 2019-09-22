@@ -11,6 +11,15 @@ import java.io.InputStream;
 public class SqlSessionUtils {
 
     private static SqlSessionFactory sqlSessionFactory;
+
+    /*单例模式的SqlSessionFactory*/
+    /*public static synchronized SqlSessionFactory getInstance(InputStream is){
+        if (null==sqlSessionFactory){
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
+        }
+        return sqlSessionFactory;
+    }*/
+
     static {
         InputStream is = null;
         try {

@@ -6,3 +6,19 @@ Could not find result map 'com.vainglory.domain.User' referenced from 'test.find
 
 在Mapper文件中一定存在一个mapper配置将resultType错误的写成了resultMap；
 只要有一个该错误，那么该文件中的其他mapper都会出现上述异常。
+
+
+MySQLIntegrityConstraintViolationException: Column 'id' in where clause is ambiguous
+多表关联查询时，拥有相同的字段名时，而查询时没指定是哪张表的字段。ambiguous：暧昧的，含糊的
+
+
+<resources></resources>插件的作用：复制文件
+Maven
+默认java文件下只能放java代码，放其他的会自动忽略，所以需要添加在pom中的build里添加resources插件，用来在编译时复制文件，即将java下的非
+java文件，复制到对应的文件夹（如：resources）下
+
+lifecycle：Maven生命周期
+install：
+package：
+test：
+...

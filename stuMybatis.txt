@@ -1,6 +1,12 @@
-一、
+一、Mybatis
+二、Mybatis的三种开发方式
+三：输入输出参数
+四、动态SQL（重点）
+五、多表关联查询
+六、代码生成器
+七、分页插件
 
-Mybatis重要API
+一、Mybatis重要API
 - SqlSessionFactoryBuilder：该对象负责根据MyBatis配置文件SqlMapConfig.xml构建SqlSessionFactory实例
 - SqlSessionFactory：每一个MyBatis的应用程序都以一个SqlSessionFactory对象为核心。该对象负责创建SqlSession对象实例。
 - SqlSession：该对象包含了所有执行SQL操作的方法，用于执行已映射的SQL语句
@@ -15,9 +21,9 @@ Mapper中#占位符，相当于？，实现prepareStatement，防止sql注入攻
 
 第一种：原始方法，编写Dao层的实现层，读取Mapper文件，执行sql语句
 
-第二种：Mapper接口动态代理，不编写实现类，使用SqlSession的getMapper方法，获取代理对象，执行SQL语句。
+第二种：Mapper接口动态代理，不编写实现类，使用SqlSession的getMapper方法，获取代理对象，执行SQL语句。（推荐）
 
-第三种：注解式开发
+第三种：注解式开发，再Dao接口的方法上，使用注解进行sql语句的绑定。（不推荐，开发方式不够灵活，sql语句与应用程序没有解耦）
 
 
 三：输入输出参数
@@ -91,3 +97,110 @@ index：collection指定集合元素的索引
 五、多表关联查询
 
 六、代码生成器
+Generator
+
+
+
+ResultMap中的属性autoMapping，自动将数据库与POJO属性同名的字段对应。
+id属性用来区分对象
+自动映射需要至少写出一列，一般是id（非强制），为什么不知道，源码，官方文档没有明确指出
+
+七、延迟加载
+延迟加载：不会立即查询，而是实际使用数据时再查询
+
+association 和 collection 都是在加载关系对方的数据，但在查询一方时，不一定需要另一方数据，
+此时可以利用延迟加载特性 做出适应。
+
+
+八、分页插件 pagehelper
+设置分页条件后的第一条查询SQL语句会被增强。
+使用步骤：
+第一步：导入依赖
+<dependency>
+  <groupId>com.github.pagehelper</groupId>
+  <artifactId>pagehelper</artifactId>
+  <version>RELEASE</version>
+</dependency>
+第二步：在mybatisConfig配置文件中配置分页插件
+<plugins>
+  <!-- com.github.pagehelper为PageHelper类所在包名 -->
+  <plugin interceptor="com.github.pagehelper.PageInterceptor">
+      <!-- 页号自动回归到合理数值 -->
+      <property name="reasonable" value="true"/>
+  </plugin>
+</plugins>
+注意：
+plugins在配置文件中的位置必须符合要求，否则会报错，顺序如下:
+properties?, settings?,
+typeAliases?, typeHandlers?,
+objectFactory?,objectWrapperFactory?,
+plugins?,
+environments?, databaseIdProvider?, mappers?
+
+spring 等价配置
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  <property name="plugins">
+    <array>
+      <bean class="com.github.pagehelper.PageInterceptor"></bean>
+    </array>
+  </property>
+</bean>
+
+第三步：在查询语句执行前设置分页，增强sql语句
+PageHelper.startPage(2,3);// 第2页，每页3条数据,pageNum,pageSize
+PageHelper.orderBy("id desc");//可以选择设置排序（可选）
+//包装一个PageInfo，其中会持有所有分页会用到的信息：当前页号，每页多少条，共多少页，是否为第一页/最后一页，是否有下一页等。
+PageInfo<User> pageInfo=new PageInfo<User>(users);
+
+注意：
+startPage()相当于一个拦截器，用于增强查询语句（添加limit），所以Mapper文件中的sql语句最后不要写分号。
+每次只对startPage()方法后的第一个查询语句进行增强
+
+
+
+
+
+
+
+
+九、缓存
+缓存：将数据库的数据临时的存储起来，以更好的支持查询。
+减少和数据库通信的次数，从而提高查询效率。
+适合进缓存的数据：查询频繁而修改较少的数据。
+
+一个SqlSession对应一个请求。
+
+Mybatis支持两种缓存：
+
+一级缓存：（使用局限，实用价值不大）
+存储位置：SqlSession，
+即一个SqlSession对象发起查询后，查询结果会存在自己内部。
+有效范围：同一个SqlSession的多次查询，即同一个SqlSession的多次相同sql的查询可以使用一级缓存。
+开启：Mybatis一级缓存默认开启
+清除：sqlSession.clearCache();
+
+二级缓存：
+存储位置：sqlSessionFactory；
+即同一个SqlSessionFactory创建的所有SqlSession发起的查询，查询结果都会再SqlSessionFactory内部。
+有效范围：同一个SqlSessionFactory
+开启：默认开启，但需要指定哪个DAO的Mapper需要使用二级缓存，定义一个<cache>即可
+注意：二级缓存必须再sqlSession.commit()或sqlSession.close()之后才生效
+清除：sqlSession.rollback();//查询结果不进入缓存
+
+注意：查询结果对应的Pojo类需要实现serializable接口
+
+二级缓存的存储结构
+一个Map集合
+key：namespace(命名空间)
+value：PerpetualCache(默认的缓存实现)
+
+PerpetualCache中也有一个Map集合
+key：slq语句
+value：查询结果
+
+在对数据库进行增删改时，二级缓存会更新即清空。
+如果使用延迟加载做关联查询，更新其中一张表时，另一张表的缓存不会更新，这就带来了问题，可能读到脏数据。
+解决：cache-ref
+当前缓存数据存入cache-ref指定的缓存分区，即将两个namespace的缓存数据存入一个分区。
+
+

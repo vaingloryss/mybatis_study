@@ -6,9 +6,12 @@
 	<!--关联db.properties-->
 	<properties resource="db.properties"/>
 
-	<!--数据库中字段下划线命名格式自动转Java驼峰命名法-->
 	<settings>
+		<!--数据库中字段下划线命名格式自动转Java驼峰命名法-->
 		<setting name="mapUnderscoreToCamelCase" value="true"/>
+
+		<!--关闭二级缓存-->
+		<!--<setting name="cacheEnabled" value="false"/>-->
 	</settings>
 
 	<typeAliases>
@@ -17,6 +20,14 @@
 		<!--为domain包中的所有类器别名，别名为类名，不区分大小写-->
 		<package name="com.vainglory.domain"/>
 	</typeAliases>
+
+	<!--导入分页插件-->
+	<plugins>
+		<plugin interceptor="com.github.pagehelper.PageInterceptor">
+			<!--页号自动回归到合理数值-->
+			<property name="reasonable" value="reue"/>
+		</plugin>
+	</plugins>
 
 	<!--类型转换器，需要放在设置别名的后面-->
 	<!--

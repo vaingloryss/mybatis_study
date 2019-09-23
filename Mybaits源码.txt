@@ -111,3 +111,28 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession
 回到DefaultSqlSession中来，在SqlSession接口中提供了很多方法，用于我们的增删改查，这在旧版的MyBatis或者iBatis中常常所使用的，
 我们现在大多直接使用xml配置文件以达到更加灵活的效果。
 所以我们将注意力放在getMapper方法上，这里就涉及到Java的动态代理.
+
+通过打断点调试我们可以发现确实产生了一个叫MapperProxy的代理类
+DefaultSqlSession的getMapper方法
+public <T> T getMapper(Class<T> type) {
+    return configuration.<T>getMapper(type, this);
+}
+调用了Configuration的getMapper方法，接着看Configuration的getMapper方法
+public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    return mapperRegistry.getMapper(type, sqlSession);
+}
+
+DefaultSqlSession.getMapper调用Configuration.getMapper时，将传递进来的Class类型参数和其本身传递给了Configuration.getMapper。
+Configuration中的getMapper调用了mapperRegistry的getMapper，MapperRegistry的作用是注册Mapper映射器。
+
+protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+
+mapperRegistry中的getMapper方法通过knownMappers.get(type)获取Mapper，knownMappers 是一个HashMap集合，定义：
+private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<Class<?>, MapperProxyFactory<?>>();
+MyBatis运行时首先读取并解析MybatisConfig.xml配置文件，将解析好的配置文件各个配置参数放入Configuration对象中，包括Mapper的配置，
+所以应该是在解析xml文件的某个类中解析过来后调用Configuration的方法将mapper放置到MapperRegistry中.
+
+一切正确时，我们就能获取到一个MapperProxyFactory实例。MapperProxy代理类的生成正是通过MapperProxyFactory工厂类构建的
+MapperProxy代理类，是通过sqlSession、mapperInterface、mechodCache三个参数构造的.
+要使用Java的动态代理就必须得实现InvocationHandler接口，MapperProxy首先判断代理对象是一个接口还是一个类，
+显然我们没有对mapper接口进行任何实现，那么它将生成一个MapperMethod对象，接着调用其execute方法，把sqlSession和参数传递进去。
